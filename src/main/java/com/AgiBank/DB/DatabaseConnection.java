@@ -1,9 +1,6 @@
 package com.AgiBank.DB;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 import io.github.cdimascio.dotenv.Dotenv;
 
@@ -29,6 +26,7 @@ public class DatabaseConnection {
         try (Connection connection = DriverManager.getConnection(url, username, password)) {
             System.out.println("Connected to the database!");
 
+            showTables(connection);
             createTables(connection);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -93,6 +91,17 @@ public class DatabaseConnection {
             stmt.execute(createAposentadoriaTable);
             System.out.println("Aposentadoria table created successfully!");
         }
+    }
+
+    private static void showTables(Connection connection) throws SQLException{
+
+        Statement stmt = connection.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM Usuario"); {
+
+                while (rs.next()) {
+                    System.out.println(rs.getString("nome"));
+                }
+            }
     }
 
 }
