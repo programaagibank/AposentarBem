@@ -15,7 +15,7 @@
 
 ## A seguir consta o Diagrama Entidade Relacionamento:
 <div>
-  <img src="https://github.com/programaagibank/AposentarBem/blob/main/Modelo%20conceitualAtualizado.drawio.png" width="500" height="500" style="margin-bottom: 10px;">
+  <img src="https://github.com/programaagibank/AposentarBem/blob/main/misc/Modelo%20conceitualAtualizado.drawio%20(1).png" width="500" height="500" style="margin-bottom: 10px;">
 </div>
 
 ### Participantes do grupo:
