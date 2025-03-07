@@ -94,5 +94,4 @@ public class DatabaseConnection {
             System.out.println("Aposentadoria table created successfully!");
         }
     }
-
 }
