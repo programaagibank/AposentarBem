@@ -1,4 +1,4 @@
-package org.example.DB;
+package com.AgiBank.DB;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
