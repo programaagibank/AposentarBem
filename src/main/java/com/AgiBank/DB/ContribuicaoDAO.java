@@ -15,7 +15,15 @@ public class ContribuicaoDAO {
         this.conexao = conexao;
     }
 
-    public void registrarContribuicao(Contribuicao contribuicao) {
+    public void registrarContribuicao(Contribuicao contribuicao) throws SQLException {
+        if (!usuarioExiste(contribuicao.getIdUsuario())) {
+            throw new SQLException("Usuário com ID " + contribuicao.getIdUsuario() + " não encontrado.");
+        }
+
+        if (!validarPeriodoContribuicao(contribuicao.getIdUsuario(), contribuicao.getPeriodoInicio(), contribuicao.getPeriodoFim())) {
+            throw new SQLException("Período de contribuição inválido.");
+        }
+
         String insertContribuicao = "INSERT INTO Contribuicao (idUsuario, valorSalario, periodoInicio, periodoFim) VALUES (?, ?, ?, ?)";
 
         try (PreparedStatement ps = conexao.prepareStatement(insertContribuicao)) {
@@ -47,6 +55,27 @@ public class ContribuicaoDAO {
             }
         } catch (SQLException e) {
             System.out.println("Erro ao consultar histórico de contribuição.");
+        }
+    }
+
+    private boolean validarPeriodoContribuicao(int idUsuario, LocalDate periodoInicio, LocalDate periodoFim) {
+        if (periodoInicio.isAfter(periodoFim) || periodoInicio.equals(periodoFim)) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean usuarioExiste(int idUsuario) {
+        String consultaUsuario = "SELECT 1 FROM Usuario WHERE idUsuario = ?";
+
+        try (PreparedStatement ps = conexao.prepareStatement(consultaUsuario)) {
+            ps.setInt(1, idUsuario);
+            try (ResultSet resultado = ps.executeQuery()) {
+                return resultado.next();
+            }
+        } catch (SQLException e) {
+            System.out.println("Erro ao buscar por usuário.");
+            return false;
         }
     }
 }
