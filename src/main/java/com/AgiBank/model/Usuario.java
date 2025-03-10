@@ -1,4 +1,6 @@
-package com.AgiBank;
+package com.AgiBank.model;
+
+import com.AgiBank.dao.UsuarioDAO;
 
 import java.time.LocalDate;
 import java.time.Period;

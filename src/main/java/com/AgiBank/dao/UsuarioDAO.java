@@ -1,6 +1,6 @@
-package com.AgiBank;
+package com.AgiBank.dao;
 
-import com.AgiBank.DB.DatabaseConnection;
+import com.AgiBank.model.Usuario;
 import io.github.cdimascio.dotenv.Dotenv;
 
 import java.sql.Connection;
