@@ -1,4 +1,4 @@
-package com.AgiBank.DB;
+package com.AgiBank.utils;
 
 import java.sql.*;
 
