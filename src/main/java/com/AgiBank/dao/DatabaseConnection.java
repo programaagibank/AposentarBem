@@ -1,4 +1,4 @@
-package com.AgiBank.DB;
+package com.AgiBank.dao;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
