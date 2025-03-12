@@ -85,6 +85,7 @@ public class Usuario {
         LocalDate dataAniversario = null;
         LocalDate diaAtual = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter formatterAmericano = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
         while (dataAniversario == null) {
             System.out.print("Digite sua data de nascimento (DD/MM/AAAA): ");
@@ -104,10 +105,14 @@ public class Usuario {
                     dataAniversario = null;
                 }
 
+
+
             } catch (Exception e) {
                 System.out.println("Data inválida. Por favor, use o formato DD/MM/AAAA.");
             }
         }
+
+        dataNascimento = dataAniversario.format(formatterAmericano);
 
         System.out.print("Qual seu gênero?\n");
         System.out.println("Masculino ou Feminino");
