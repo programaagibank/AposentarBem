@@ -1,6 +1,6 @@
 package com.AgiBank.model;
 
-import com.AgiBank.dao.UsuarioDAO;
+import com.AgiBank.dao.usuario.UsuarioDAOImpl;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -169,8 +169,8 @@ public class Usuario {
 
         Usuario usuario = new Usuario(nome, dataNascimento, genero, profissao, idadeAposentadoriaDesejada);
 
-        UsuarioDAO usuarioDAO = new UsuarioDAO();
-        usuarioDAO.salvarUsuario(usuario);
+        com.AgiBank.dao.usuario.UsuarioDAO usuarioDAO = new UsuarioDAOImpl();
+        usuarioDAO.criarUsuario(usuario);
 
         scanner.close();
         return usuario;
