@@ -4,8 +4,6 @@ import com.AgiBank.dao.usuario.UsuarioDAO;
 import com.AgiBank.model.Usuario;
 import com.AgiBank.view.UsuarioView;
 
-import java.util.Scanner;
-
 public class UsuarioController {
     private UsuarioDAO usuarioDAO;
     private UsuarioView usuarioView;
@@ -16,12 +14,8 @@ public class UsuarioController {
     }
 
     public void criarUsuario() {
-        Scanner scanner = new Scanner(System.in);
-        Usuario usuario = UsuarioView.colectUserDataFromConsole(scanner);
-
+        Usuario usuario = usuarioView.coletarDadosUsuario();
         usuarioDAO.criarUsuario(usuario);
-        System.out.println("Usuário cadastrado com sucesso!");
-
-        scanner.close();
+        usuarioView.exibirMensagem("Usuário cadastrado com sucesso!");
     }
 }
