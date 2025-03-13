@@ -15,20 +15,23 @@ public class ContribuicaoView {
 
     public void registrarContribuicao() {
         try {
-            int idUsuario = coletarIdUsuario();
-            int idContribuicao = coletarIdContribuicao();
-            LocalDate periodoInicio = coletarData("início");
-            LocalDate periodoFim = coletarData("fim");
+            // Obter o último idUsuario criado
+            int idUsuario = contribuicaoDAO.obterUltimoIdUsuario();
+            System.out.println("Agora, vamos colocar suas contribuições!");
 
             do {
+                int idContribuicao = contribuicaoDAO.obterProximoIdContribuicao();
+                LocalDate periodoInicio = coletarData("início");
+                LocalDate periodoFim = coletarData("fim");
+
                 System.out.print("Digite o valor do salário: ");
                 double salario = input.nextDouble();
 
                 Contribuicao contribuicao = new Contribuicao(idUsuario, salario, periodoInicio,
                         periodoFim);
                 contribuicaoDAO.registrarContribuicao(
+                        idContribuicao,
                         contribuicao.getIdUsuario(),
-                        contribuicao.getIdContribuicao(),
                         contribuicao.getValorSalario(),
                         contribuicao.getPeriodoInicio(),
                         contribuicao.getPeriodoFim()
@@ -46,16 +49,6 @@ public class ContribuicaoView {
         } catch (SQLException e) {
             System.out.println("Erro ao registrar contribuição.");
         }
-    }
-
-    private int coletarIdUsuario() {
-        System.out.print("Digite o ID do usuário: ");
-        return input.nextInt();
-    }
-
-    private int coletarIdContribuicao() {
-        System.out.print("Digite o ID da contribuição: ");
-        return input.nextInt();
     }
 
     private LocalDate coletarData(String tipo) {

@@ -21,23 +21,16 @@ public class ContribuicaoDAOImpl implements ContribuicaoDAO {
 
     public void registrarContribuicao(int idContribuicao, int idUsuario, double valorSalario, LocalDate periodoInicio,
                                       LocalDate periodoFim) throws SQLException {
-        if (!idContribuicaoExiste(idContribuicao)) {
-            throw new SQLException("O ID da contribuição não existe no banco de dados.");
-        }
-
         if (!usuarioPorId(idUsuario)) {
             throw new SQLException("Usuário com ID " + idUsuario + " não encontrado.");
-        }
-
-        if (!verificarContribuicaoAssociadaAUsuario(idContribuicao, idUsuario)) {
-            throw new SQLException("O ID da contribuição não está associado ao usuário com ID " + idUsuario + ".");
         }
 
         if (!periodoContribuicaoEValido(periodoInicio, periodoFim)) {
             throw new SQLException("Período de contribuição inválido.");
         }
 
-        String insertContribuicao = "INSERT INTO Contribuicao (idContribuicao, idUsuario, valorSalario, periodoInicio, periodoFim) " +  "VALUES (?, ?, ?, ?, ?)";
+        String insertContribuicao = "INSERT INTO Contribuicao (idContribuicao, idUsuario, valorSalario, periodoInicio, periodoFim) " +
+                "VALUES (?, ?, ?, ?, ?)";
 
         try (Connection conexao = DriverManager.getConnection(url, username, password);
              PreparedStatement ps = conexao.prepareStatement(insertContribuicao)) {
@@ -76,11 +69,36 @@ public class ContribuicaoDAOImpl implements ContribuicaoDAO {
         }
     }
 
-    private boolean periodoContribuicaoEValido(LocalDate periodoInicio, LocalDate periodoFim) {
-        if (periodoInicio.isAfter(periodoFim) || periodoInicio.equals(periodoFim)) {
-            return false;
+    public int obterUltimoIdUsuario() throws SQLException {
+        String consulta = "SELECT MAX(idUsuario) AS ultimoId FROM Usuario";
+
+        try (Connection conexao = DriverManager.getConnection(url, username, password);
+             Statement stmt = conexao.createStatement();
+             ResultSet rs = stmt.executeQuery(consulta)) {
+            if (rs.next()) {
+                return rs.getInt("ultimoId");
+            } else {
+                throw new SQLException("Nenhum usuário encontrado.");
+            }
         }
-        return true;
+    }
+
+    public int obterProximoIdContribuicao() throws SQLException {
+        String consulta = "SELECT MAX(idContribuicao) + 1 AS proximoId FROM Contribuicao";
+
+        try (Connection conexao = DriverManager.getConnection(url, username, password);
+             Statement stmt = conexao.createStatement();
+             ResultSet rs = stmt.executeQuery(consulta)) {
+            if (rs.next()) {
+                return rs.getInt("proximoId");
+            } else {
+                return 1; // Caso não haja contribuições, começa com 1
+            }
+        }
+    }
+
+    private boolean periodoContribuicaoEValido(LocalDate periodoInicio, LocalDate periodoFim) {
+        return !periodoInicio.isAfter(periodoFim) && !periodoInicio.equals(periodoFim);
     }
 
     private boolean usuarioPorId(int idUsuario) {
@@ -94,37 +112,6 @@ public class ContribuicaoDAOImpl implements ContribuicaoDAO {
             }
         } catch (SQLException e) {
             System.out.println("Erro ao buscar por usuário.");
-            return false;
-        }
-    }
-
-    private boolean idContribuicaoExiste(int idContribuicao) throws SQLException {
-        String query = "SELECT 1 FROM Contribuicao WHERE idContribuicao = ?";
-
-        try (Connection conexao = DriverManager.getConnection(url, username, password);
-             PreparedStatement ps = conexao.prepareStatement(query)) {
-            ps.setInt(1, idContribuicao);
-            try (ResultSet resultado = ps.executeQuery()) {
-                if (resultado.next()) {
-                    return resultado.getInt(1) > 0;
-                }
-            }
-        }
-        return false;
-    }
-
-    private boolean verificarContribuicaoAssociadaAUsuario(int idContribuicao, int idUsuario) {
-        String query = "SELECT 1 FROM Contribuicao WHERE idContribuicao = ? AND idUsuario = ?";
-
-        try (Connection conexao = DriverManager.getConnection(url, username, password);
-             PreparedStatement ps = conexao.prepareStatement(query)) {
-            ps.setInt(1, idContribuicao);
-            ps.setInt(2, idUsuario);
-            try (ResultSet resultado = ps.executeQuery()) {
-                return resultado.next();
-            }
-        } catch (SQLException e) {
-            System.out.println("Erro ao verificar associação de contribuição com usuário.");
             return false;
         }
     }
