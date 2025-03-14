@@ -17,10 +17,9 @@ public class UsuarioView {
         String dataNascimento = coletarDataNascimento();
         String genero = coletarGenero();
         String profissao = coletarProfissao();
-        int idade = calcularIdade(dataNascimento);
         int idadeAposentadoriaDesejada = coletarIdadeAposentadoriaDesejada(genero);
 
-        return new Usuario(nome, dataNascimento, genero, profissao, idadeAposentadoriaDesejada);
+        return new Usuario(nome, dataNascimento, genero, profissao,idadeAposentadoriaDesejada);
     }
 
     private String coletarNome() {
@@ -39,36 +38,20 @@ public class UsuarioView {
     }
 
     private String coletarDataNascimento() {
-        LocalDate dataAniversario = null;
-        LocalDate hoje = LocalDate.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
-        while (dataAniversario == null) {
+        while (true) {
             System.out.print("Digite sua data de nascimento (DD/MM/AAAA): ");
             String dataNascimento = scanner.nextLine();
-            try {
-                dataAniversario = LocalDate.parse(dataNascimento, formatter);
 
-                if (dataAniversario.isAfter(hoje)) {
-                    System.out.println("Data de nascimento não pode ser maior que a data de hoje.");
-                    dataAniversario = null;
-                } else if (calcularIdade(dataNascimento) < 15) {
-                    System.out.println("Você precisa ter pelo menos 15 anos.");
-                    dataAniversario = null;
-                } else {
-                    return dataNascimento;
-                }
-            } catch (Exception e) {
-                System.out.println("Data inválida. Por favor, use o formato DD/MM/AAAA.");
+            try {
+                LocalDate dataValidada = Usuario.validarData(dataNascimento);
+                return dataNascimento;
+
+            } catch (IllegalArgumentException e) {
+                System.out.println("Erro: " + e.getMessage());
             }
         }
-        return null;
     }
 
-    private int calcularIdade(String dataNascimento) {
-        LocalDate dataNasc = LocalDate.parse(dataNascimento, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-        return Period.between(dataNasc, LocalDate.now()).getYears();
-    }
 
     private String coletarGenero() {
         while (true) {

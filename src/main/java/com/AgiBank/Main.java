@@ -2,7 +2,6 @@ package com.AgiBank;
 
 import com.AgiBank.controller.usuario.UsuarioController;
 import com.AgiBank.dao.usuario.UsuarioDAOImpl;
-import com.AgiBank.utils.DatabaseConnection;
 import com.AgiBank.view.UsuarioView;
 import com.AgiBank.model.Usuario;
 
@@ -15,5 +14,4 @@ public class Main {
         UsuarioView usuarioView = new UsuarioView();
         UsuarioController usuarioController = new UsuarioController(usuarioDAO, usuarioView);
         usuarioController.criarUsuario();
-    }
-}
+    }}

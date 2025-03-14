@@ -28,7 +28,7 @@ public class UsuarioDAOImpl implements UsuarioDAO {
 
     @Override
     public void criarUsuario(Usuario usuario) {
-        String dataNascimento = usuario.getDataNascimento();
+        String dataNascimento = usuario.getDataNascimento().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
         LocalDate localDate = LocalDate.parse(dataNascimento, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
         String sql = "INSERT INTO Usuario (nome, dataNascimento, genero, profissao, idadeAposentadoriaDesejada) VALUES (?, ?, ?, ?, ?)";
 

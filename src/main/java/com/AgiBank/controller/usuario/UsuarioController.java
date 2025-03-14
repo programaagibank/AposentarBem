@@ -17,5 +17,8 @@ public class UsuarioController {
         Usuario usuario = usuarioView.coletarDadosUsuario();
         usuarioDAO.criarUsuario(usuario);
         usuarioView.exibirMensagem("Usuário cadastrado com sucesso!");
+
+        //teste
+        System.out.println("Idade do usuário: " + usuario.getIdade() + " anos.");
     }
 }

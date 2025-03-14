@@ -1,18 +1,21 @@
 package com.AgiBank.model;
 
 import java.time.LocalDate;
+import java.time.Period;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 public class Usuario {
     private String nome;
-    private String dataNascimento;
+    private LocalDate dataNascimento;
+    private int idade;
     private String genero;
     private String profissao;
     private int idadeAposentadoriaDesejada;
-    private int idade;
 
     public Usuario(String nome, String dataNascimento, String genero, String profissao, int idadeAposentadoriaDesejada) {
         this.nome = nome;
-        this.dataNascimento = dataNascimento;
+        setDataNascimento(dataNascimento);
         this.genero = genero;
         this.profissao = profissao;
         this.idadeAposentadoriaDesejada = idadeAposentadoriaDesejada;
@@ -26,13 +29,48 @@ public class Usuario {
         this.nome = nome;
     }
 
-    public String getDataNascimento() {
+    public LocalDate getDataNascimento() {
         return dataNascimento;
     }
 
-    public void setDataNascimento(String dataNascimento) {
-        this.dataNascimento = dataNascimento;
+    public void setDataNascimento(String dataNascimentoStr) {
+        this.dataNascimento = validarData(dataNascimentoStr);
+        this.idade = calcularIdade(this.dataNascimento);
     }
+
+    public static LocalDate validarData(String dataNascimentoStr) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        try {
+            LocalDate dataConvertida = LocalDate.parse(dataNascimentoStr, formatter);
+            LocalDate dataAtual = LocalDate.now();
+
+            if (dataConvertida.isAfter(dataAtual)) {
+                throw new IllegalArgumentException("A data de nascimento não pode ser no futuro.");
+            }
+            int idade = calcularIdade(dataConvertida);
+            if (idade < 15) {
+                throw new IllegalArgumentException("A idade mínima permitida é 15 anos.");
+            }
+            return dataConvertida;
+
+        } catch (DateTimeParseException e) {
+                throw new IllegalArgumentException("Formato de data inválido! Use o formato DD/MM/AAAA.");
+        }
+
+    }
+
+    public static int calcularIdade(LocalDate dataNascimento) {
+        if (dataNascimento == null) {
+            throw new IllegalStateException("Data de nascimento não foi definida.");
+        }
+        LocalDate dataAtual = LocalDate.now();
+        return Period.between(dataNascimento, dataAtual).getYears();
+    }
+
+    public int getIdade() {
+        return idade;
+    }
+
 
     public String getGenero() {
         return genero;
@@ -57,12 +95,8 @@ public class Usuario {
     public void setIdadeAposentadoriaDesejada(int idadeAposentadoriaDesejada) {
         this.idadeAposentadoriaDesejada = idadeAposentadoriaDesejada;
     }
-
-    public int getIdade() {
-        return idade;
-    }
-
-    public void setIdade(int idade) {
-        this.idade = idade;
-    }
 }
+
+
+
+
