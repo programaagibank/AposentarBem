@@ -17,7 +17,8 @@ public class UsuarioView {
         String dataNascimento = coletarDataNascimento();
         String genero = coletarGenero();
         String profissao = coletarProfissao();
-        int idadeAposentadoriaDesejada = coletarIdadeAposentadoriaDesejada(genero);
+        int idade = calcularIdade(dataNascimento);
+        int idadeAposentadoriaDesejada = coletarIdadeAposentadoriaDesejada();
 
         return new Usuario(nome, dataNascimento, genero, profissao,idadeAposentadoriaDesejada);
     }
@@ -26,41 +27,44 @@ public class UsuarioView {
         while (true) {
             System.out.print("Digite seu nome: ");
             String nome = scanner.nextLine().trim();
-
-            if (nome.isEmpty()) {
-                System.out.println("O nome não pode estar vazio. Tente novamente.");
-            } else if (!nome.matches("[a-zA-ZÀ-ÿ\\s]+")) {
-                System.out.println("O nome não pode conter números ou caracteres especiais inválidos. Tente novamente.");
-            } else {
+            if (Usuario.validarNome(nome)) {
                 return nome;
+            } else {
+                System.out.println("Nome inválido. Tente novamente.");
             }
         }
     }
 
     private String coletarDataNascimento() {
+
         while (true) {
-            System.out.print("Digite sua data de nascimento (DD/MM/AAAA): ");
-            String dataNascimento = scanner.nextLine();
-
             try {
-                LocalDate dataValidada = Usuario.validarData(dataNascimento);
-                return dataNascimento;
-
-            } catch (IllegalArgumentException e) {
-                System.out.println("Erro: " + e.getMessage());
+                System.out.print("Digite sua data de nascimento (DD/MM/AAAA): ");
+                String dataNascimento = scanner.nextLine();
+                if (Usuario.validarDataNascimento(dataNascimento)) {
+                    return dataNascimento;
+                } else {
+                    System.out.println("Data inválida. Tente novamente.");
+                }
+            } catch (Exception e) {
+                System.out.println("Data inválida. Por favor, use o formato DD/MM/AAAA.");
             }
         }
     }
 
+    private int calcularIdade(String dataNascimento) {
+        LocalDate dataNasc = LocalDate.parse(dataNascimento, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        return Period.between(dataNasc, LocalDate.now()).getYears();
+    }
 
     private String coletarGenero() {
         while (true) {
             System.out.print("Qual seu gênero? (Masculino/Feminino): ");
             String genero = scanner.nextLine().trim();
-            if (genero.equalsIgnoreCase("Masculino") || genero.equalsIgnoreCase("Feminino")) {
-                return genero.substring(0, 1).toUpperCase() + genero.substring(1).toLowerCase();
+            if (Usuario.validarGenero(genero)) {
+                return genero;
             } else {
-                System.out.println("Opção inválida. Digite novamente (Masculino ou Feminino).");
+                System.out.println("Gênero inválido. Tente novamente.");
             }
         }
     }
@@ -72,30 +76,24 @@ public class UsuarioView {
             System.out.print("Qual sua profissão? (Geral, Professor, Rural): ");
             String profissao = scanner.nextLine().trim();
             profissao = profissao.substring(0, 1).toUpperCase() + profissao.substring(1).toLowerCase();
-
-            for (String opcao : opcoesValidas) {
-                if (profissao.equals(opcao)) {
-                    return profissao;
-                }
+            if (Usuario.validarProfissao(profissao)) {
+                return profissao;
+            } else {
+                System.out.println("Profissão inválida. Tente novamente.");
             }
-            System.out.println("Profissão inválida. Escolha entre: Geral, Professor ou Rural.");
         }
     }
 
-    private int coletarIdadeAposentadoriaDesejada(String genero) {
-        int idadeMinima = genero.equalsIgnoreCase("Masculino") ? 65 : 62;
-
+    private int coletarIdadeAposentadoriaDesejada() {
         while (true) {
             try {
-                System.out.printf("A idade mínima para sua aposentadoria é de %d anos. Digite a idade desejada: ", idadeMinima);
+                System.out.print("Digite a idade desejada para aposentadoria: ");
                 int idadeAposentadoria = scanner.nextInt();
-
-                if (idadeAposentadoria >= idadeMinima && idadeAposentadoria < 90) {
+                scanner.nextLine();
+                if (Usuario.validarIdadeAposentadoria(idadeAposentadoria)) {
                     return idadeAposentadoria;
-                } else if (idadeAposentadoria >= 90) {
-                    System.out.println("Idade muito alta, tente um valor menor que 90 anos.");
                 } else {
-                    System.out.printf("A idade mínima para aposentadoria é de %d anos. Tente novamente.\n", idadeMinima);
+                    System.out.println("Idade de aposentadoria inválida. Tente novamente.");
                 }
             } catch (InputMismatchException e) {
                 System.out.println("Entrada inválida! Digite apenas números inteiros.");

@@ -67,11 +67,6 @@ public class Usuario {
         return Period.between(dataNascimento, dataAtual).getYears();
     }
 
-    public int getIdade() {
-        return idade;
-    }
-
-
     public String getGenero() {
         return genero;
     }
@@ -95,8 +90,48 @@ public class Usuario {
     public void setIdadeAposentadoriaDesejada(int idadeAposentadoriaDesejada) {
         this.idadeAposentadoriaDesejada = idadeAposentadoriaDesejada;
     }
+
+    public int getIdade() {
+        return idade;
+    }
+
+    public void setIdade(int idade) {
+        this.idade = idade;
+    }
+
+    public static boolean validarNome(String nome) {
+        return !nome.isEmpty() && nome.matches("[a-zA-ZÀ-ÿ\\s]+");
+    }
+
+    public static boolean validarDataNascimento(String dataNascimento) {
+        LocalDate hoje = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        try {
+            LocalDate dataAniversario = LocalDate.parse(dataNascimento, formatter);
+            return !dataAniversario.isAfter(hoje);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public static boolean validarGenero(String genero) {
+        return genero.equalsIgnoreCase("Masculino") || genero.equalsIgnoreCase("Feminino");
+    }
+
+    public static boolean validarProfissao(String profissao) {
+        String[] opcoesValidas = {"Geral", "Professor", "Rural"};
+        for (String opcao : opcoesValidas) {
+            if (profissao.equalsIgnoreCase(opcao)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean validarIdadeAposentadoria(int idadeAposentadoria) {
+        int idadeMinima = 40;
+        return idadeAposentadoria >= idadeMinima && idadeAposentadoria < 90;
+    }
 }
-
-
 
 
