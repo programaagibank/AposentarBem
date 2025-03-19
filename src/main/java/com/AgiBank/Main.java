@@ -26,6 +26,7 @@ public class Main {
         //Verifica se era valido antes de 2019
         Elegibilidade elegibilidade = new Elegibilidade();
         elegibilidade.verificarUltimoUsuario();
+
     }
 }
 
