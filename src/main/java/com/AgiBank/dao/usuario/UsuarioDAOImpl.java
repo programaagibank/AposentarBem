@@ -3,12 +3,7 @@ package com.AgiBank.dao.usuario;
 import com.AgiBank.model.Usuario;
 import io.github.cdimascio.dotenv.Dotenv;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import java.sql.*;
 
 public class UsuarioDAOImpl implements UsuarioDAO {
 
@@ -27,25 +22,30 @@ public class UsuarioDAOImpl implements UsuarioDAO {
     }
 
     @Override
-    public void criarUsuario(Usuario usuario) {
-        String dataNascimento = usuario.getDataNascimento().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-        LocalDate localDate = LocalDate.parse(dataNascimento, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+    public boolean criarUsuario(Usuario usuario) {
         String sql = "INSERT INTO Usuario (nome, dataNascimento, genero, profissao, idadeAposentadoriaDesejada) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection connection = DriverManager.getConnection(url, username, password);
-             PreparedStatement stmt = connection.prepareStatement(sql)) {
+             PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setString(1, usuario.getNome());
-            stmt.setDate(2, java.sql.Date.valueOf(localDate));
+            stmt.setDate(2, java.sql.Date.valueOf(usuario.getDataNascimento()));
             stmt.setString(3, usuario.getGenero());
             stmt.setString(4, usuario.getProfissao());
             stmt.setInt(5, usuario.getIdadeAposentadoriaDesejada());
 
             stmt.executeUpdate();
-            System.out.println("Usuário salvo com sucesso!");
 
+            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    usuario.setId(generatedKeys.getInt(1));
+                }
+            }
+
+            return true;
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println("Erro ao salvar usuário: " + e.getMessage());
+            return false;
         }
     }
 }
