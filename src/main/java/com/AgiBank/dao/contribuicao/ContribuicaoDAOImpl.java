@@ -64,6 +64,7 @@ public class ContribuicaoDAOImpl implements ContribuicaoDAO {
         return contribuicoes;
     }
 
+    @Override
     public int obterUltimoIdUsuario() throws SQLException {
         String consulta = "SELECT MAX(idUsuario) AS ultimoId FROM Usuario";
 
@@ -78,6 +79,7 @@ public class ContribuicaoDAOImpl implements ContribuicaoDAO {
         }
     }
 
+    @Override
     public int obterProximoIdContribuicao() throws SQLException {
         String consulta = "SELECT MAX(idContribuicao) + 1 AS proximoId FROM Contribuicao";
 
@@ -91,6 +93,7 @@ public class ContribuicaoDAOImpl implements ContribuicaoDAO {
             }
         }
     }
+
     public List<Contribuicao> obterSalariosPorUsuario(int idUsuario) throws SQLException {
         List<Contribuicao> salarios = new ArrayList<>();
         String sql = "SELECT valorSalario, periodoInicio, periodoFim FROM Contribuicao WHERE idUsuario = ?";
@@ -111,5 +114,4 @@ public class ContribuicaoDAOImpl implements ContribuicaoDAO {
         }
         return salarios;
     }
-
 }

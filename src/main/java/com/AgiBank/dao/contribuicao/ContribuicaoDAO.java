@@ -15,5 +15,4 @@ public interface ContribuicaoDAO {
     int obterUltimoIdUsuario() throws SQLException;
 
     int obterProximoIdContribuicao() throws SQLException;
-
 }
