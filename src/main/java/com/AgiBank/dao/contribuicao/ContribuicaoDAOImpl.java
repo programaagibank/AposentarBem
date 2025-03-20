@@ -1,9 +1,14 @@
 package com.AgiBank.dao.contribuicao;
 
+import com.AgiBank.model.Contribuicao;
 import io.github.cdimascio.dotenv.Dotenv;
 
 import java.sql.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.sql.DriverManager.getConnection;
 
 public class ContribuicaoDAOImpl implements ContribuicaoDAO {
     private final String url;
@@ -19,20 +24,11 @@ public class ContribuicaoDAOImpl implements ContribuicaoDAO {
         this.url = "jdbc:mysql://" + baseUrl + ":" + port + "/aposentarBem";
     }
 
-    public void registrarContribuicao(int idContribuicao, int idUsuario, double valorSalario, LocalDate periodoInicio,
-                                      LocalDate periodoFim) throws SQLException {
-        if (!usuarioPorId(idUsuario)) {
-            throw new SQLException("Usuário com ID " + idUsuario + " não encontrado.");
-        }
+    @Override
+    public void registrarContribuicao(int idContribuicao, int idUsuario, double valorSalario, LocalDate periodoInicio, LocalDate periodoFim) throws SQLException {
+        String insertContribuicao = "INSERT INTO Contribuicao (idContribuicao, idUsuario, valorSalario, periodoInicio, periodoFim) VALUES (?, ?, ?, ?, ?)";
 
-        if (!periodoContribuicaoEValido(periodoInicio, periodoFim)) {
-            throw new SQLException("Período de contribuição inválido.");
-        }
-
-        String insertContribuicao = "INSERT INTO Contribuicao (idContribuicao, idUsuario, valorSalario, periodoInicio, periodoFim) " +
-                "VALUES (?, ?, ?, ?, ?)";
-
-        try (Connection conexao = DriverManager.getConnection(url, username, password);
+        try (Connection conexao = getConnection(url, username, password);
              PreparedStatement ps = conexao.prepareStatement(insertContribuicao)) {
             ps.setInt(1, idContribuicao);
             ps.setInt(2, idUsuario);
@@ -40,16 +36,15 @@ public class ContribuicaoDAOImpl implements ContribuicaoDAO {
             ps.setDate(4, java.sql.Date.valueOf(periodoInicio));
             ps.setDate(5, java.sql.Date.valueOf(periodoFim));
             ps.executeUpdate();
-            System.out.println("Registro realizado com sucesso.");
-        } catch (SQLException e) {
-            System.out.println("Erro ao registrar contribuição.");
         }
     }
 
-    public void consultarHistorico(int idUsuario) throws SQLException {
+    @Override
+    public List<Contribuicao> consultarHistorico(int idUsuario) throws SQLException {
+        List<Contribuicao> contribuicoes = new ArrayList<>();
         String consulta = "SELECT * FROM Contribuicao WHERE idUsuario = ?";
 
-        try (Connection conexao = DriverManager.getConnection(url, username, password);
+        try (Connection conexao = getConnection(url, username, password);
              PreparedStatement ps = conexao.prepareStatement(consulta)) {
             ps.setInt(1, idUsuario);
 
@@ -57,22 +52,22 @@ public class ContribuicaoDAOImpl implements ContribuicaoDAO {
                 while (rs.next()) {
                     int idContribuicao = rs.getInt("idContribuicao");
                     double valorSalario = rs.getDouble("valorSalario");
-                    LocalDate periodoInicioResultado = rs.getDate("periodoInicio").toLocalDate();
-                    LocalDate periodoFimResultado = rs.getDate("periodoFim").toLocalDate();
+                    LocalDate periodoInicio = rs.getDate("periodoInicio").toLocalDate();
+                    LocalDate periodoFim = rs.getDate("periodoFim").toLocalDate();
 
-                    System.out.println("ID: " + idContribuicao + ", Valor: " + valorSalario + ", Início: " + periodoInicioResultado + ", Fim: " + periodoFimResultado);
+                    Contribuicao contribuicao = new Contribuicao(idUsuario, valorSalario, periodoInicio, periodoFim);
+                    contribuicao.setIdContribuicao(idContribuicao);
+                    contribuicoes.add(contribuicao);
                 }
-                System.out.println("Consulta do histórico realizada com sucesso.");
-            } catch (SQLException e) {
-                System.out.println("Erro ao consultar histórico de contribuição.");
             }
         }
+        return contribuicoes;
     }
 
     public int obterUltimoIdUsuario() throws SQLException {
         String consulta = "SELECT MAX(idUsuario) AS ultimoId FROM Usuario";
 
-        try (Connection conexao = DriverManager.getConnection(url, username, password);
+        try (Connection conexao = getConnection(url, username, password);
              Statement stmt = conexao.createStatement();
              ResultSet rs = stmt.executeQuery(consulta)) {
             if (rs.next()) {
@@ -86,33 +81,35 @@ public class ContribuicaoDAOImpl implements ContribuicaoDAO {
     public int obterProximoIdContribuicao() throws SQLException {
         String consulta = "SELECT MAX(idContribuicao) + 1 AS proximoId FROM Contribuicao";
 
-        try (Connection conexao = DriverManager.getConnection(url, username, password);
+        try (Connection conexao = getConnection(url, username, password);
              Statement stmt = conexao.createStatement();
              ResultSet rs = stmt.executeQuery(consulta)) {
             if (rs.next()) {
                 return rs.getInt("proximoId");
             } else {
-                return 1; // Caso não haja contribuições, começa com 1
+                return 1;
             }
         }
     }
+    public List<Contribuicao> obterSalariosPorUsuario(int idUsuario) throws SQLException {
+        List<Contribuicao> salarios = new ArrayList<>();
+        String sql = "SELECT valorSalario, periodoInicio, periodoFim FROM Contribuicao WHERE idUsuario = ?";
 
-    private boolean periodoContribuicaoEValido(LocalDate periodoInicio, LocalDate periodoFim) {
-        return !periodoInicio.isAfter(periodoFim) && !periodoInicio.equals(periodoFim);
-    }
-
-    private boolean usuarioPorId(int idUsuario) {
-        String consultaUsuario = "SELECT 1 FROM Usuario WHERE idUsuario = ?";
-
-        try (Connection conexao = DriverManager.getConnection(url, username, password);
-             PreparedStatement ps = conexao.prepareStatement(consultaUsuario)) {
+        try (Connection conexao = getConnection(url, username, password);
+             PreparedStatement ps = conexao.prepareStatement(sql)) {
             ps.setInt(1, idUsuario);
-            try (ResultSet resultado = ps.executeQuery()) {
-                return resultado.next();
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                double valorSalario = rs.getDouble("valorSalario");
+                LocalDate periodoInicio = rs.getDate("periodoInicio").toLocalDate();
+                LocalDate periodoFim = rs.getDate("periodoFim").toLocalDate();
+
+                Contribuicao contribuicao = new Contribuicao(idUsuario, valorSalario, periodoInicio, periodoFim);
+                salarios.add(contribuicao);
             }
-        } catch (SQLException e) {
-            System.out.println("Erro ao buscar por usuário.");
-            return false;
         }
+        return salarios;
     }
+
 }

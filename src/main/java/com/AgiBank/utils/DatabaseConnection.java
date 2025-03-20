@@ -1,3 +1,4 @@
+
 package com.AgiBank.utils;
 
 import java.sql.Connection;
@@ -33,8 +34,9 @@ public class DatabaseConnection {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    } }
+    }
 
+}
    /* private static void createTables(Connection connection) throws SQLException {
         String createUsersTable = "CREATE TABLE IF NOT EXISTS Usuario (" +
                 "idUsuario INT AUTO_INCREMENT PRIMARY KEY," +

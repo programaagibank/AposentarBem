@@ -15,6 +15,27 @@ public class Contribuicao {
         this.periodoInicio = periodoInicio;
         this.periodoFim = periodoFim;
     }
+    public int getIdUsuario() {
+        return idUsuario;
+    }
+    public double getValorSalario() {
+        return valorSalario;
+    }
+    public void setValorSalario(double valorSalario) {
+        this.valorSalario = valorSalario;
+    }
+    public LocalDate getPeriodoInicio() {
+        return periodoInicio;
+    }
+    public void setPeriodoInicio(LocalDate periodoInicio) {
+        this.periodoInicio = periodoInicio;
+    }
+    public LocalDate getPeriodoFim() {
+        return periodoFim;
+    }
+    public void setPeriodoFim(LocalDate periodoFim) {
+        this.periodoFim = periodoFim;
+    }
 
     public int getIdContribuicao() {
         return idContribuicao;
@@ -23,31 +44,8 @@ public class Contribuicao {
         this.idContribuicao = idContribuicao;
     }
 
-    public int getIdUsuario() {
-        return idUsuario;
-    }
     public void setIdUsuario(int idUsuario) {
         this.idUsuario = idUsuario;
     }
 
-    public double getValorSalario() {
-        return valorSalario;
-    }
-    public void setValorSalario(double valorSalario) {
-        this.valorSalario = valorSalario;
-    }
-
-    public LocalDate getPeriodoInicio() {
-        return periodoInicio;
-    }
-    public void setPeriodoInicio(LocalDate periodoInicio) {
-        this.periodoInicio = periodoInicio;
-    }
-
-    public LocalDate getPeriodoFim() {
-            return periodoFim;
-    }
-    public void setPeriodoFim(LocalDate periodoFim) {
-            this.periodoFim = periodoFim;
-    }
 }
