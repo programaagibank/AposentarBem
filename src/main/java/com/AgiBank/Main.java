@@ -1,5 +1,6 @@
 package com.AgiBank;
 
+import com.AgiBank.controller.Elegibilidade.ElegibilidadeController;
 import com.AgiBank.model.Elegibilidade;
 import com.AgiBank.view.ContribuicaoView;
 import com.AgiBank.controller.usuario.UsuarioController;
@@ -13,7 +14,7 @@ public class Main {
     public static void main(String[] args) throws SQLException {
 
         //Criação usuario
-      /* UsuarioDAOImpl usuarioDAO = new UsuarioDAOImpl();
+        UsuarioDAOImpl usuarioDAO = new UsuarioDAOImpl();
         UsuarioView usuarioView = new UsuarioView();
         UsuarioController usuarioController = new UsuarioController(usuarioDAO, usuarioView);
         usuarioController.criarUsuario();
@@ -21,11 +22,13 @@ public class Main {
       //Recolhimento de contribuição
        ContribuicaoView contribuicaoView = new ContribuicaoView();
         contribuicaoView.registrarContribuicao();
-        //contribuicaoView.consultarHistorico();*/
+
 
         //Verifica se era valido antes de 2019
-        Elegibilidade elegibilidade = new Elegibilidade();
-        elegibilidade.verificarUltimoUsuario();
+        ElegibilidadeController elegibilidadeController = new ElegibilidadeController();
+
+        elegibilidadeController.verificarUltimoUsuario();
+        //contribuicaoView.consultarHistorico();
 
     }
 }
