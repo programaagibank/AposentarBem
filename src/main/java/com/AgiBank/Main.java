@@ -9,9 +9,5 @@ public class Main {
         FatorPrevidenciario fp = new FatorPrevidenciario(contribuicaoTotais);
 
         System.out.println("Fator Previdenciário: " + fp.calcularFatorPrevidenciario());
-
-//        ContribuicaoTotais contribuicaoTotais = new ContribuicaoTotais(30, 6, 50000.0); // 30 anos, 6 meses, salário de 50.000
-//        FatorPrevidenciario fp = new FatorPrevidenciario(contribuicaoTotais);
-//        System.out.println("Fator Previdenciário: " + fp.calcularFatorPrevidenciario());
     }
 }
