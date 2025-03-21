@@ -6,6 +6,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 public class Usuario {
+    private int id;
     private String nome;
     private LocalDate dataNascimento;
     private int idade;
@@ -49,14 +50,12 @@ public class Usuario {
             }
             int idade = calcularIdade(dataConvertida);
             if (idade < 15) {
-                throw new IllegalArgumentException("A idade mínima permitida é 15 anos.");
+                throw new IllegalArgumentException("A idade mínima permitida para simulação é 15 anos.");
             }
             return dataConvertida;
-
         } catch (DateTimeParseException e) {
-                throw new IllegalArgumentException("Formato de data inválido! Use o formato DD/MM/AAAA.");
+            throw new IllegalArgumentException("Formato de data inválido! Use o formato DD/MM/AAAA.");
         }
-
     }
 
     public static int calcularIdade(LocalDate dataNascimento) {
@@ -103,17 +102,6 @@ public class Usuario {
         return !nome.isEmpty() && nome.matches("[a-zA-ZÀ-ÿ\\s]+");
     }
 
-    public static boolean validarDataNascimento(String dataNascimento) {
-        LocalDate hoje = LocalDate.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        try {
-            LocalDate dataAniversario = LocalDate.parse(dataNascimento, formatter);
-            return !dataAniversario.isAfter(hoje);
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
     public static boolean validarGenero(String genero) {
         return genero.equalsIgnoreCase("Masculino") || genero.equalsIgnoreCase("Feminino");
     }
@@ -132,6 +120,12 @@ public class Usuario {
         int idadeMinima = 40;
         return idadeAposentadoria >= idadeMinima && idadeAposentadoria < 90;
     }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 }
-
-

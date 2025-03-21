@@ -3,7 +3,6 @@ package com.AgiBank.view;
 import com.AgiBank.model.Usuario;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -11,20 +10,21 @@ import java.util.Scanner;
 public class UsuarioView {
 
     private final Scanner scanner = new Scanner(System.in);
+    private Usuario usuario;
 
     public Usuario coletarDadosUsuario() {
         String nome = coletarNome();
         String dataNascimento = coletarDataNascimento();
         String genero = coletarGenero();
         String profissao = coletarProfissao();
-        int idade = calcularIdade(dataNascimento);
         int idadeAposentadoriaDesejada = coletarIdadeAposentadoriaDesejada();
 
-        return new Usuario(nome, dataNascimento, genero, profissao,idadeAposentadoriaDesejada);
+        return new Usuario(nome, dataNascimento, genero, profissao, idadeAposentadoriaDesejada);
     }
 
     private String coletarNome() {
         while (true) {
+            System.out.println("\n===== Calculadora de Contribuição Previdenciária =====");
             System.out.print("Digite seu nome: ");
             String nome = scanner.nextLine().trim();
             if (Usuario.validarNome(nome)) {
@@ -36,25 +36,17 @@ public class UsuarioView {
     }
 
     private String coletarDataNascimento() {
-
         while (true) {
+            System.out.print("Digite sua data de nascimento (DD/MM/AAAA): ");
+            String dataNascimento = scanner.nextLine();
+
             try {
-                System.out.print("Digite sua data de nascimento (DD/MM/AAAA): ");
-                String dataNascimento = scanner.nextLine();
-                if (Usuario.validarDataNascimento(dataNascimento)) {
-                    return dataNascimento;
-                } else {
-                    System.out.println("Data inválida. Tente novamente.");
-                }
-            } catch (Exception e) {
-                System.out.println("Data inválida. Por favor, use o formato DD/MM/AAAA.");
+                LocalDate dataValidada = Usuario.validarData(dataNascimento);
+                return dataNascimento;
+            } catch (IllegalArgumentException e) {
+                System.out.println("Erro: " + e.getMessage());
             }
         }
-    }
-
-    private int calcularIdade(String dataNascimento) {
-        LocalDate dataNasc = LocalDate.parse(dataNascimento, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-        return Period.between(dataNasc, LocalDate.now()).getYears();
     }
 
     private String coletarGenero() {
@@ -73,7 +65,7 @@ public class UsuarioView {
         String[] opcoesValidas = {"Geral", "Professor", "Rural"};
 
         while (true) {
-            System.out.print("Qual sua profissão? (Geral, Professor, Rural): ");
+            System.out.print("Informe sua categoria (Geral, Professor, Rural): ");
             String profissao = scanner.nextLine().trim();
             profissao = profissao.substring(0, 1).toUpperCase() + profissao.substring(1).toLowerCase();
             if (Usuario.validarProfissao(profissao)) {
@@ -104,5 +96,13 @@ public class UsuarioView {
 
     public void exibirMensagem(String mensagem) {
         System.out.println(mensagem);
+    }
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
     }
 }
