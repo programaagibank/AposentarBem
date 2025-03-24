@@ -22,14 +22,6 @@ public class Main {
       //Recolhimento de contribuição
        ContribuicaoView contribuicaoView = new ContribuicaoView();
         contribuicaoView.registrarContribuicao();
-
-
-        //Verifica se era valido antes de 2019
-        ElegibilidadeController elegibilidadeController = new ElegibilidadeController();
-
-        elegibilidadeController.verificarUltimoUsuario();
-        //contribuicaoView.consultarHistorico();
-
     }
 }
 
