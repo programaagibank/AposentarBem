@@ -1,6 +1,6 @@
 package com.AgiBank.view;
 
-import com.AgiBank.controller.usuario.ContribuicaoController;
+import com.AgiBank.controller.contribuicao.ContribuicaoController;
 import com.AgiBank.dao.contribuicao.ContribuicaoDAO;
 import com.AgiBank.model.CalculadoraSalarioBeneficio;
 import com.AgiBank.model.Contribuicao;

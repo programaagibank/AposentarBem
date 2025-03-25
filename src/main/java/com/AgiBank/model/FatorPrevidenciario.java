@@ -1,4 +1,4 @@
-﻿package com.AgiBank.model;
+package com.AgiBank.model;
 
 public class FatorPrevidenciario {
     private int anosContribuidos;

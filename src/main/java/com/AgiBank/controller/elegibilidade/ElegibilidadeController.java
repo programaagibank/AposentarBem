@@ -1,4 +1,4 @@
-package com.AgiBank.controller.Elegibilidade;
+package com.AgiBank.controller.elegibilidade;
 
 import com.AgiBank.dao.elegibilidade.*;
 import java.sql.SQLException;
