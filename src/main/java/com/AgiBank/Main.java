@@ -21,6 +21,12 @@ public class Main {
 
         // Criação da view do usuário
         UsuarioView usuarioView = new UsuarioView();
+        UsuarioController usuarioController = new UsuarioController(usuarioDAO, usuarioView);
+        usuarioController.criarUsuario();
+
+      //Recolhimento de contribuição
+       ContribuicaoView contribuicaoView = new ContribuicaoView();
+        contribuicaoView.registrarContribuicao();
 
         // Criar o controlador de contribuição
         ContribuicaoView contribuicaoView = new ContribuicaoView(contribuicaoDAO, usuarioView.getUsuario(), null);  // Aqui passamos ContribuicaoView corretamente
@@ -40,5 +46,7 @@ public class Main {
         } else {
             System.out.println("Erro: Nenhum usuário foi criado. Impossível consultar histórico.");
         }
+
     }
 }
+
