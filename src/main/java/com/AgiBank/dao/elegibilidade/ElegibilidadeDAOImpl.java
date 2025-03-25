@@ -36,14 +36,14 @@ public class ElegibilidadeDAOImpl implements ElegibilidadeDAO {
     }
 
     @Override
-    public int calcularMesesTrabalhadosAntesDe2019(int userId) {
+    public int calcularMesesTrabalhadosAntesDe2019(int idUsuario) {
         LocalDate limite2019 = LocalDate.of(2019, 11, 13);
         int totalMesesTrabalhados = 0;
 
         String sql = "SELECT periodoInicio, periodoFim FROM Contribuicao WHERE idUsuario = ?";
         try (Connection conn = DriverManager.getConnection(url, username, password);
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, userId);
+            stmt.setInt(1, idUsuario);
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
@@ -69,11 +69,11 @@ public class ElegibilidadeDAOImpl implements ElegibilidadeDAO {
     }
 
     @Override
-    public String[] obterDadosUsuario(int userId) {
+    public String[] obterDadosUsuario(int idUsuario) {
         try (Connection conn = DriverManager.getConnection(url, username, password)) {
             String sql = "SELECT dataNascimento, genero, profissao FROM Usuario WHERE idUsuario = ?";
             PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setInt(1, userId);
+            stmt.setInt(1, idUsuario);
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
@@ -86,20 +86,7 @@ public class ElegibilidadeDAOImpl implements ElegibilidadeDAO {
     }
 
     @Override
-    public int calcularIdadeEm2019(String dataNascimento, int anoReferencia) {
-        if (dataNascimento == null || dataNascimento.isEmpty()) {
-            throw new IllegalArgumentException("Data de nascimento inválida.");
-        }
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate dataNasc = LocalDate.parse(dataNascimento, formatter);
-
-        return Period.between(dataNasc, LocalDate.of(anoReferencia, 1, 1)).getYears();
-    }
-
-
-    @Override
-    public boolean wasEligibleBefore2019(int userId) {
+    public boolean wasEligibleBefore2019(int idUsuario) {
         String dataNascimento = "";
         String genero = "";
         String profissao = "";
@@ -107,7 +94,7 @@ public class ElegibilidadeDAOImpl implements ElegibilidadeDAO {
         try (Connection conn = DriverManager.getConnection(url, username, password)) {
             String sql = "SELECT dataNascimento, genero, profissao FROM Usuario WHERE idUsuario = ?";
             PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setInt(1, userId);
+            stmt.setInt(1, idUsuario);
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
@@ -123,9 +110,7 @@ public class ElegibilidadeDAOImpl implements ElegibilidadeDAO {
         }
 
         int idadeEm2019 = calcularIdadeEm2019(dataNascimento, 2019);
-        int mesesTrabalhadosAntes2019 = calcularMesesTrabalhadosAntesDe2019(userId);
-        //Verificar meses
-         System.out.println("Meses trabalhados" + mesesTrabalhadosAntes2019);
+        int mesesTrabalhadosAntes2019 = calcularMesesTrabalhadosAntesDe2019(idUsuario);
 
         switch (profissao.toLowerCase()) {
             case "professor":
@@ -143,5 +128,104 @@ public class ElegibilidadeDAOImpl implements ElegibilidadeDAO {
                 boolean aposentadoriaPorTempo = (mesesTrabalhadosAntes2019 >= 420);
                 return aposentadoriaPorIdade || aposentadoriaPorTempo;
         }
+    }
+
+    @Override
+    public int aposentarIdadeMinimaETempo(int idUsuario) {
+        String dataNascimento = "";
+        String genero = "";
+        String profissao = "";
+
+        try (Connection conn = DriverManager.getConnection(url, username, password)) {
+            String sql = "SELECT dataNascimento, genero, profissao FROM Usuario WHERE idUsuario = ?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, idUsuario);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                dataNascimento = rs.getString("dataNascimento");
+                genero = rs.getString("genero");
+                profissao = rs.getString("profissao");
+            } else {
+                return -1;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+        int idadeEm2019 = calcularIdadeEm2019(dataNascimento, 2019);
+        int mesesTrabalhadosAntes2019 = calcularMesesTrabalhadosAntesDe2019(idUsuario);
+        int anoAtual = LocalDate.now().getYear();
+        int idadeMinima = 0;
+        int tempoContribuicaoMinimo = 0;
+
+        switch (profissao.toLowerCase()) {
+            case "professor":
+                if (genero.equalsIgnoreCase("masculino")) {
+                    idadeMinima = 56 + (anoAtual - 2019) / 2;
+                    tempoContribuicaoMinimo = 30 * 12;
+                } else {
+                    idadeMinima = 51 + (anoAtual - 2019) / 2;
+                    tempoContribuicaoMinimo = 25 * 12;
+                }
+                break;
+
+            case "rural":
+                if (genero.equalsIgnoreCase("masculino")) {
+                    idadeMinima = 61 + (anoAtual - 2019) / 2;
+                    tempoContribuicaoMinimo = 35 * 12;
+                } else {
+                    idadeMinima = 56 + (anoAtual - 2019) / 2;
+                    tempoContribuicaoMinimo = 30 * 12;
+                }
+                break;
+
+            default:
+                if (genero.equalsIgnoreCase("masculino")) {
+                    idadeMinima = 61 + (anoAtual - 2019) / 2;
+                    tempoContribuicaoMinimo = 35 * 12;
+                } else {
+                    idadeMinima = 56 + (anoAtual - 2019) / 2;
+                    tempoContribuicaoMinimo = 30 * 12;
+                }
+                break;
+        }
+
+        if (idadeAtual >= idadeMinima && mesesTrabalhadosAntes2019 >= tempoContribuicaoMinimo) {
+            return 1; // Elegível
+        } else {
+            return 0; // Não elegível
+        }
+    }
+
+    @Override
+    public double calcularValorAposentadoria(int idUsuario) {
+        int mesesTrabalhados = calcularMesesTrabalhadosAntesDe2019(idUsuario);
+        double mediaContribuicoes = calcularMediaContribuicoes(idUsuario);
+        double coeficienteAposentadoria = 0.60 + (0.02 * (mesesTrabalhados / 12 - 30));
+
+        return mediaContribuicoes * coeficienteAposentadoria;
+    }
+
+    private double calcularMediaContribuicoes(int idUsuario) {
+        double somaSalarios = 0;
+        int totalMeses = 0;
+
+        String sql = "SELECT valorSalario FROM Contribuicao WHERE idUsuario = ?";
+        try (Connection conn = DriverManager.getConnection(url, username, password);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, idUsuario);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                somaSalarios += rs.getDouble("valorSalario");
+                totalMeses++;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return totalMeses > 0 ? somaSalarios / totalMeses : 0;
     }
 }

@@ -4,8 +4,9 @@ import java.sql.SQLException;
 
 public interface ElegibilidadeDAO {
     int obterUltimoIdUsuario() throws SQLException;
-    int calcularMesesTrabalhadosAntesDe2019(int userId);
-    boolean wasEligibleBefore2019(int userId);
-    int calcularIdadeEm2019(String dataNascimento, int anoReferencia);
-    String[] obterDadosUsuario(int userId);
+    int calcularMesesTrabalhadosAntesDe2019(int idUsuario);
+    boolean wasEligibleBefore2019(int idUsuario);
+    String[] obterDadosUsuario(int idUsuario);
+    int aposentarIdadeMinimaETempo(int idUsuario);
+    double calcularValorAposentadoria(int idUsuario);
 }
