@@ -1,10 +1,9 @@
 package com.AgiBank.view;
 
-import com.AgiBank.controller.usuario.ContribuicaoController;
+import com.AgiBank.controller.contribuicao.ContribuicaoController;
 import com.AgiBank.dao.contribuicao.ContribuicaoDAO;
 import com.AgiBank.model.CalculadoraSalarioBeneficio;
 import com.AgiBank.model.Contribuicao;
-import com.AgiBank.model.ContribuicaoTotais;
 import com.AgiBank.model.Usuario;
 
 import java.sql.SQLException;
@@ -219,59 +218,49 @@ public class ContribuicaoView {
         return String.format("%d anos e %d meses", periodo.getYears(), periodo.getMonths());
     }
 
- public ContribuicaoTotais calcularTotais(int idUsuario) {
-    try {
-        List<Contribuicao> contribuicoes = contribuicaoDAO.consultarHistorico(idUsuario);
+    public List<Contribuicao> consultarContribuicoes(int idUsuario) {
+        try {
+            List<Contribuicao> contribuicoes = contribuicaoDAO.consultarHistorico(idUsuario);
 
-        if (contribuicoes.isEmpty()) {
-            System.out.println("Nenhuma contribuição encontrada para o usuário.");
-            return new ContribuicaoTotais(0, 0, 0);
-        }
-
-        double salarioTotal = 0;
-        int totalMesesContribuicao = 0;
-        LocalDate dataLimite = LocalDate.of(1994, 7, 1);
-        for (Contribuicao c : contribuicoes) {
-            LocalDate inicio = c.getPeriodoInicio();
-            LocalDate fim = c.getPeriodoFim();
-
-            if (inicio.isAfter(fim)) {
-                throw new IllegalArgumentException("A data de início não pode ser posterior à data de fim.");
+            if (contribuicoes.isEmpty()) {
+                System.out.println("Nenhuma contribuição encontrada para o usuário.");
+                return new ArrayList<>();
             }
 
-            Period periodoContribuicao = Period.between(inicio, fim);
-            int mesesContribuicao = periodoContribuicao.getYears() * 12 + periodoContribuicao.getMonths();
-            if (periodoContribuicao.getDays() > 0) {
-                mesesContribuicao += 1;
-            }
-            totalMesesContribuicao += mesesContribuicao;
+            LocalDate dataLimite = LocalDate.of(1994, 7, 1);
+            double salarioAposLimite = 0;
+            int mesesAposLimite = 0;
 
-            if (!fim.isBefore(dataLimite)) {
-                LocalDate inicioValido = inicio.isBefore(dataLimite) ? dataLimite : inicio;
+            for (Contribuicao c : contribuicoes) {
+                LocalDate inicio = c.getPeriodoInicio();
+                LocalDate fim = c.getPeriodoFim();
 
-                Period periodoSalario = Period.between(inicioValido, fim);
-                int mesesSalario = periodoSalario.getYears() * 12 + periodoSalario.getMonths();
-                if (periodoSalario.getDays() > 0) {
-                    mesesSalario += 1;
+                if (inicio.isAfter(fim)) {
+                    throw new IllegalArgumentException("A data de início não pode ser posterior à data de fim.");
                 }
 
-                salarioTotal += c.getValorSalario() * mesesSalario;
+                if (!fim.isBefore(dataLimite)) {
+                    LocalDate inicioValido = inicio.isBefore(dataLimite) ? dataLimite : inicio;
+                    Period periodoValido = Period.between(inicioValido, fim);
+                    int mesesValidos = periodoValido.getYears() * 12 + periodoValido.getMonths();
+                    if (periodoValido.getDays() > 0) {
+                        mesesValidos++;
+                    }
+                    salarioAposLimite += c.getValorSalario() * mesesValidos;
+                    mesesAposLimite += mesesValidos;
+                }
             }
+
+            // Store the calculated values for use in the view
+            this.salarioBeneficio = mesesAposLimite > 0 ? salarioAposLimite / mesesAposLimite : 0;
+
+            return contribuicoes;
+        } catch (SQLException e) {
+            System.out.println("Erro ao consultar contribuições: " + e.getMessage());
+            return new ArrayList<>();
         }
-        int totalAnos = totalMesesContribuicao / 12;
-
-        int totalMesesValidos = (int) (salarioTotal > 0 ? salarioTotal / contribuicoes.stream()
-                .filter(c -> !c.getPeriodoFim().isBefore(dataLimite))
-                .mapToDouble(c -> c.getValorSalario())
-                .average()
-                .orElse(0) : 0);
-        return new ContribuicaoTotais(totalAnos, totalMesesContribuicao, salarioTotal);
-
-    } catch (SQLException e) {
-        System.out.println("Erro ao calcular totais: " + e.getMessage());
-        return new ContribuicaoTotais(0, 0, 0);
     }
-}
+
     public void consultarHistorico(int idUsuario) {
         try {
             List<Contribuicao> contribuicoes = contribuicaoDAO.consultarHistorico(idUsuario);
@@ -289,32 +278,26 @@ public class ContribuicaoView {
 
                 salarios.add(c.getValorSalario());
 
-                LocalDate inicio = c.getPeriodoInicio();
-                LocalDate fim = c.getPeriodoFim();
-                Period periodo = Period.between(inicio, fim);
+                Period periodo = Period.between(c.getPeriodoInicio(), c.getPeriodoFim());
                 int meses = periodo.getYears() * 12 + periodo.getMonths();
                 if (periodo.getDays() > 0) {
-                    meses += 1; // Considera dias como 1 mês
+                    meses++;
                 }
                 mesesContribuicao.add(meses);
             }
 
-            ContribuicaoTotais totais = calcularTotais(idUsuario);
-
-            int anosContribuicao = totais.getAnosContribuicao();
-            int totalMesesContribuicao = totais.getMesesContribuicao();
-            double salarioTotal = totais.getSalarioTotal();
+            int anosContribuicao = Contribuicao.calcularAnosContribuidos(contribuicoes);
+            int mesesRestantes = Contribuicao.calcularMesesRestantes(contribuicoes);
+            double salarioTotal = Contribuicao.calcularSalarioTotal(contribuicoes);
 
             System.out.println("\nResumo das Contribuições:");
             System.out.println("Anos de Contribuição: " + anosContribuicao);
-            System.out.println("Meses de Contribuição: " + totalMesesContribuicao);
+            System.out.println("Meses Restantes: " + mesesRestantes);
             System.out.println("Salário Total adquirido: " + formatarSalario(salarioTotal));
 
-            if (salarios.isEmpty() || mesesContribuicao.isEmpty()) {
-                throw new IllegalArgumentException("As listas de salários e meses não podem ser nulas ou vazias.");
+            if (!salarios.isEmpty() && !mesesContribuicao.isEmpty()) {
+                exibirSalarioBeneficio(CalculadoraSalarioBeneficio.calcularSalarioBeneficio(salarios, mesesContribuicao));
             }
-            //regra antiga
-            exibirSalarioBeneficio(CalculadoraSalarioBeneficio.calcularSalarioBeneficio(salarios, mesesContribuicao));
 
         } catch (SQLException e) {
             System.out.println("Erro ao consultar histórico: " + e.getMessage());

@@ -1,9 +1,8 @@
-package com.AgiBank.controller.usuario;
+package com.AgiBank.controller.contribuicao;
 
 import com.AgiBank.dao.contribuicao.ContribuicaoDAOImpl;
 import com.AgiBank.model.CalculadoraSalarioBeneficio;
 import com.AgiBank.model.Contribuicao;
-import com.AgiBank.model.ContribuicaoTotais;
 import com.AgiBank.view.ContribuicaoView;
 
 import java.sql.SQLException;
