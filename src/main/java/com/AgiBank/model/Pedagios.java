@@ -4,20 +4,16 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Pedagios {
-    private int idade;
-    private int totalAnos;
-    private int totalMeses;
-    private double media;
-    private double beneficio;
+public class Pedagios extends RegrasAposentadoria {
     private List<Contribuicao> contribuicoes;
     private LocalDate DATA_REFERENCIA = LocalDate.of(1994, 7, 1);
+    private Profissao profissao;
 
-    public Pedagios(List<Contribuicao> contribuicoes, int idade) {
-        this.idade = idade;
+    public Pedagios(List<Contribuicao> contribuicoes, int idade, Genero genero, Profissao profissao) {
+        super(idade, genero, contribuicoes.size() * 12, 0); // Initialize the superclass with total months
         this.contribuicoes = filtrarContribuicoesValidas(contribuicoes);
-        this.totalAnos = Contribuicao.calcularAnosContribuidos(this.contribuicoes);
-        this.totalMeses = this.totalAnos * 12;
+        this.profissao = profissao;
+        this.setTempoContribuicaoEmMeses(Contribuicao.calcularAnosContribuidos(this.contribuicoes) * 12);
     }
 
     private List<Contribuicao> filtrarContribuicoesValidas(List<Contribuicao> contribuicoes) {
@@ -35,49 +31,52 @@ public class Pedagios {
     }
 
     private double calcularMediaSalarial() {
+        int totalMeses = getTempoContribuicaoEmMeses();
         if (totalMeses <= 0) {
-            return media = 0;
+            return 0;
         }
-        return media = calcularSomaSalarios() / totalMeses;
+        return calcularSomaSalarios() / totalMeses;
     }
 
     public boolean isElegivelPedagio50() {
+        int totalMeses = getTempoContribuicaoEmMeses();
         int tempoComPedagio = totalMeses + (totalMeses / 2);
         return tempoComPedagio >= 24;
     }
 
     public boolean isElegivelPedagio100() {
-        if (idade >= 60 && totalMeses < 420) {
-            return true;
-        }
-        if (idade >= 57 && totalMeses < 360) {
-            return true;
+        int idade = getIdade();
+        int tempoContribuicaoEmMeses = getTempoContribuicaoEmMeses();
+
+        if (getGenero() == Genero.MASCULINO) {
+            if (profissao == Profissao.GERAL) {
+                return idade >= 60 && tempoContribuicaoEmMeses < 420;
+            } else if (profissao == Profissao.PROFESSOR) {
+                return idade >= 55 && tempoContribuicaoEmMeses < 360;
+            }
+        } else if (getGenero() == Genero.FEMININO) {
+            if (profissao == Profissao.GERAL) {
+                return idade >= 57 && tempoContribuicaoEmMeses < 360;
+            } else if (profissao == Profissao.PROFESSOR) {
+                return idade >= 52 && tempoContribuicaoEmMeses < 300;
+            }
         }
 
-        if (idade >= 55 && totalMeses < 360) {
-            return true;
-        }
-        if (idade >= 52 && totalMeses < 300) {
-            return true;
-        }
         return false;
     }
 
+
     public double calcularPedagio50() {
-        calcularMediaSalarial();
-
+        double media = calcularMediaSalarial();
         FatorPrevidenciario fp = new FatorPrevidenciario(contribuicoes);
-        beneficio = media * fp.calcularFatorPrevidenciario();
-
-        return beneficio;
+        return media * fp.calcularFatorPrevidenciario();
     }
 
     public double calcularPedagio100() {
-        calcularMediaSalarial();
-        return beneficio = media;
+        return calcularMediaSalarial();
     }
 
     public double getBeneficio() {
-        return beneficio;
+        return calcularMediaSalarial();
     }
 }
