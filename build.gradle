@@ -2,20 +2,26 @@ plugins {
     id 'java'
 }
 
-group = 'org.example'
-version = '1.0-SNAPSHOT'
-
 repositories {
     mavenCentral()
+}
+
+
+test {
+    useJUnitPlatform()
+    jvmArgs = [
+            '-XX:+EnableDynamicAgentLoading',
+            '-Xshare:off'
+    ]
 }
 
 dependencies {
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.mockito:mockito-core:5.0.0'
+    testImplementation 'org.mockito:mockito-inline:5.0.0'
+    testImplementation 'net.bytebuddy:byte-buddy:1.14.11'
+    testImplementation 'net.bytebuddy:byte-buddy-agent:1.14.11'
     implementation 'io.github.cdimascio:dotenv-java:3.2.0'
     implementation 'mysql:mysql-connector-java:8.0.33'
-}
-
-test {
-    useJUnitPlatform()
 }

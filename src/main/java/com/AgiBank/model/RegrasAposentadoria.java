@@ -1,49 +1,125 @@
 package com.AgiBank.model;
 
+import java.util.List;
+
 public class RegrasAposentadoria {
-    private int anosContribuicao;
-    private int idadeMinimaHomem;
-    private int idadeMinimaMulher;
+    private int tempoContribuicaoEmMeses;
+    private int idade;
+    private Genero genero;
+    private double valorAposentadoria;
+    private Profissao profissao;
 
-    public RegrasAposentadoria(ContribuicaoTotais contribuicaoTotais) {
-        this.anosContribuicao = contribuicaoTotais.getAnosContribuicao();
+    public enum Profissao {
+        GERAL(30, 35),
+        PROFESSOR(25, 30),
+        RURAL(15, 15);
+
+        private final int anosContribuicaoMinimaFeminino;
+        private final int anosContribuicaoMinimaMasculino;
+
+        Profissao(int anosContribuicaoMinimaFeminino, int anosContribuicaoMinimaMasculino) {
+            this.anosContribuicaoMinimaFeminino = anosContribuicaoMinimaFeminino;
+            this.anosContribuicaoMinimaMasculino = anosContribuicaoMinimaMasculino;
+        }
+
+        public int getAnosContribuicaoMinimaFeminino() {
+            return anosContribuicaoMinimaFeminino;
+        }
+
+        public int getAnosContribuicaoMinimaMasculino() {
+            return anosContribuicaoMinimaMasculino;
+        }
     }
 
-    public int getAnosContribuicao() {
-        return anosContribuicao;
+
+    public enum Genero {
+        MASCULINO(65, 35), FEMININO(62, 30);
+
+        private final int idadeMinima;
+        private final int tempoContribuicaoMinima;
+
+        Genero(int idadeMinima, int tempoContribuicaoMinima) {
+            this.idadeMinima = idadeMinima;
+            this.tempoContribuicaoMinima = tempoContribuicaoMinima;
+        }
+
+        public int getIdadeMinima() {
+            return idadeMinima;
+        }
+
+        public int getTempoContribuicaoMinima() {
+            return tempoContribuicaoMinima;
+        }
     }
 
-    public int getIdadeMinimaHomem() {
-        return idadeMinimaHomem;
+    public RegrasAposentadoria(int idade, Genero genero, int tempoContribuicaoEmMeses, double valorAposentadoria) {
+        this.idade = idade;
+        this.genero = genero;
+        this.tempoContribuicaoEmMeses = tempoContribuicaoEmMeses;
+        this.valorAposentadoria = valorAposentadoria;
     }
 
-    public void setIdadeMinimaHomem(int idadeMinimaHomem) {
-        this.idadeMinimaHomem = idadeMinimaHomem;
+    public int getIdade() {
+        return idade;
     }
 
-    public int getIdadeMinimaMulher() {
-        return idadeMinimaMulher;
+    public void setIdade(int idade) {
+        this.idade = idade;
     }
 
-    public void setIdadeMinimaMulher(int idadeMinimaMulher) {
-        this.idadeMinimaMulher = idadeMinimaMulher;
+    public Profissao getProfissao() {
+        return profissao;
     }
 
-    public double calcularCoeficienteAposentadoria(int anosMinimos) {
-        int anosExtras = Math.max(0, anosContribuicao - anosMinimos);
+    public Genero getGenero() {
+        return genero;
+    }
+
+    public int getTempoContribuicaoEmMeses() {
+        return tempoContribuicaoEmMeses;
+    }
+
+    public void setTempoContribuicaoEmMeses(int tempoContribuicaoEmMeses) {
+        this.tempoContribuicaoEmMeses = tempoContribuicaoEmMeses;
+    }
+
+    public double getValorAposentadoria() {
+        return valorAposentadoria;
+    }
+
+    public void setValorAposentadoria(double valorAposentadoria) {
+        this.valorAposentadoria = valorAposentadoria;
+    }
+
+    public double calcularCoeficienteAposentadoria() {
+        int anosMinimos = genero.getTempoContribuicaoMinima();
+        int mesesMinimos = anosMinimos * 12;
+        int mesesExtras = Math.max(0, tempoContribuicaoEmMeses - mesesMinimos);
+        int anosExtras = mesesExtras / 12;
         return 0.60 + (0.02 * anosExtras);
     }
 
-    public double calcularMediaContribuicoes(ContribuicaoTotais contribuicaoTotais) {
-        if (contribuicaoTotais.getMesesContribuicao() == 0) {
-            return 0;
+    public double calcularMediaContribuicoes(List<Contribuicao> contribuicoes) {
+        if (contribuicoes == null || contribuicoes.isEmpty()) {
+            throw new IllegalArgumentException("Lista de contribuições não pode ser vazia.");
         }
-        return contribuicaoTotais.getSalarioTotal() / contribuicaoTotais.getMesesContribuicao();
+
+        double salarioTotal = Contribuicao.calcularSalarioTotal(contribuicoes);
+        int totalMeses = Contribuicao.calcularAnosContribuidos(contribuicoes) * 12
+                + Contribuicao.calcularMesesRestantes(contribuicoes);
+
+        if (totalMeses == 0) {
+            throw new IllegalArgumentException("Período de contribuição não pode ser vazio.");
+        }
+
+        return salarioTotal / totalMeses;
     }
 
-    public double calcularValorAposentadoria(ContribuicaoTotais contribuicaoTotais, int anosMinimos) {
-        double coeficiente = calcularCoeficienteAposentadoria(anosMinimos);
-        double mediaContribuicoes = calcularMediaContribuicoes(contribuicaoTotais);
-        return mediaContribuicoes * coeficiente;
+    public double calcularValorAposentadoria(List<Contribuicao> contribuicoes) {
+        double coeficienteAposentadoria = calcularCoeficienteAposentadoria();
+        double mediaContribuicoes = calcularMediaContribuicoes(contribuicoes);
+
+        return mediaContribuicoes * coeficienteAposentadoria;
     }
+
 }

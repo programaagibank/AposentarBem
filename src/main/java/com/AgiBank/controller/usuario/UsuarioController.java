@@ -1,12 +1,11 @@
 package com.AgiBank.controller.usuario;
 
+import com.AgiBank.controller.contribuicao.ContribuicaoController;
 import com.AgiBank.dao.contribuicao.ContribuicaoDAOImpl;
 import com.AgiBank.dao.usuario.UsuarioDAOImpl;
 import com.AgiBank.model.Usuario;
 import com.AgiBank.view.ContribuicaoView;
 import com.AgiBank.view.UsuarioView;
-
-import java.util.List;
 
 public class UsuarioController {
     private final UsuarioDAOImpl usuarioDAO;
@@ -21,10 +20,6 @@ public class UsuarioController {
         this.usuarioView = usuarioView;
         this.contribuicaoDAO = contribuicaoDAO;
         this.contribuicaoController = contribuicaoController;
-    }
-
-    public void iniciarInteracao() {
-        criarUsuario();
     }
 
     public void criarUsuario() {
