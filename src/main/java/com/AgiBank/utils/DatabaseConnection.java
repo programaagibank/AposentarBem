@@ -1,11 +1,15 @@
+
 package com.AgiBank.utils;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 import io.github.cdimascio.dotenv.Dotenv;
 
 public class DatabaseConnection {
-    public static void main(String[] args) {
+    public static void connectToDatabase() {
         Dotenv dotenv = Dotenv.load();
 
         String port = dotenv.get("DATABASE_PORT");
@@ -26,14 +30,14 @@ public class DatabaseConnection {
         try (Connection connection = DriverManager.getConnection(url, username, password)) {
             System.out.println("Connected to the database!");
 
-            showTables(connection);
-            createTables(connection);
+            //createTables(connection);
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    private static void createTables(Connection connection) throws SQLException {
+}
+   /* private static void createTables(Connection connection) throws SQLException {
         String createUsersTable = "CREATE TABLE IF NOT EXISTS Usuario (" +
                 "idUsuario INT AUTO_INCREMENT PRIMARY KEY," +
                 "nome VARCHAR(255) NOT NULL," +
@@ -93,15 +97,4 @@ public class DatabaseConnection {
         }
     }
 
-    private static void showTables(Connection connection) throws SQLException{
-
-        Statement stmt = connection.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT * FROM Usuario"); {
-
-                while (rs.next()) {
-                    System.out.println(rs.getString("nome"));
-                }
-            }
-    }
-
-}
+}*/
