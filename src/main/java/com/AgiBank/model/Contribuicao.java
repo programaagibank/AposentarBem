@@ -76,7 +76,7 @@ public class Contribuicao {
         return salarioTotal;
     }
 
-    static int calcularTotalMesesContribuidos(List<Contribuicao> contribuicoes) {
+    public static int calcularTotalMesesContribuidos(List<Contribuicao> contribuicoes) {
         int totalMeses = 0;
         for (Contribuicao contribuicao : contribuicoes) {
             Period periodo = Period.between(contribuicao.getPeriodoInicio(), contribuicao.getPeriodoFim());

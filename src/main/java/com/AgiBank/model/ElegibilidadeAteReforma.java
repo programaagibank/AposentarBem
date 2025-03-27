@@ -36,7 +36,7 @@ public class ElegibilidadeAteReforma extends RegrasAposentadoria {
         return idade.getYears();
     }
 
-    public static boolean aposentadoriaPorTempo(Genero genero, Profissao profissao, List<Contribuicao> contribuicoes, LocalDate dataLimite) {
+    public static boolean isAposentavelPorTempo(Genero genero, Profissao profissao, List<Contribuicao> contribuicoes, LocalDate dataLimite) {
         int totalMeses = calcularMesesTrabalhados(contribuicoes, dataLimite);
 
         switch (genero) {
@@ -60,6 +60,38 @@ public class ElegibilidadeAteReforma extends RegrasAposentadoria {
                 }
             }
 
+            default -> {
+                return false;
+            }
+        }
+    }
+
+    public static boolean isAposentavelPorIdade(LocalDate dataNascimento, Genero genero, Profissao profissao, List<Contribuicao> contribuicoes, LocalDate dataLimite) {
+        int totalMeses = calcularMesesTrabalhados(contribuicoes, dataLimite);
+        int idadeEm2019 = calcularIdadeEm2019(dataNascimento);
+
+        switch (genero) {
+            case FEMININO -> {
+                if ((profissao == Profissao.GERAL || profissao == Profissao.PROFESSOR)
+                        && totalMeses >= 180 && idadeEm2019 >= 60) {
+                    return true;
+                } else if (profissao == Profissao.RURAL && totalMeses >= 180 && idadeEm2019 >= 55) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+
+            case MASCULINO -> {
+                if ((profissao == Profissao.GERAL || profissao == Profissao.PROFESSOR)
+                        && totalMeses >= 180 && idadeEm2019 >= 65) {
+                    return true;
+                } else if (profissao == Profissao.RURAL && totalMeses >= 180 && idadeEm2019 >= 60) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
             default -> {
                 return false;
             }
