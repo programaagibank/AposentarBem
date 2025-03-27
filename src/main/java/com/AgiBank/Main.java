@@ -3,18 +3,22 @@ package com.AgiBank;
 import com.AgiBank.controller.contribuicao.ContribuicaoController;
 import com.AgiBank.dao.contribuicao.ContribuicaoDAOImpl;
 import com.AgiBank.dao.usuario.UsuarioDAOImpl;
+import com.AgiBank.model.Contribuicao;
+import com.AgiBank.model.ElegibilidadeAteReforma;
+import com.AgiBank.model.RegrasAposentadoria;
 import com.AgiBank.view.ContribuicaoView;
 import com.AgiBank.controller.usuario.UsuarioController;
 import com.AgiBank.view.UsuarioView;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
         System.setOut(new PrintStream(System.out, true, StandardCharsets.UTF_8));
         System.setErr(new PrintStream(System.err, true, StandardCharsets.UTF_8));
 
-        // Inicialização dos DAOs
+        /*// Inicialização dos DAOs
         UsuarioDAOImpl usuarioDAO = new UsuarioDAOImpl();
         ContribuicaoDAOImpl contribuicaoDAO = new ContribuicaoDAOImpl();
 
@@ -31,7 +35,8 @@ public class Main {
             usuarioController.consultarHistorico();
         } else {
             System.out.println("Erro: Nenhum usuário foi criado. Impossível consultar histórico.");
-        }
+        }*/
+
 
     }
 }

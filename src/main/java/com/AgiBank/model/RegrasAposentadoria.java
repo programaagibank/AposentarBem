@@ -8,6 +8,7 @@ public class RegrasAposentadoria {
     private Genero genero;
     private double valorAposentadoria;
     private Profissao profissao;
+    private boolean isElegivel;
 
     public enum Profissao {
         GERAL(30, 35),

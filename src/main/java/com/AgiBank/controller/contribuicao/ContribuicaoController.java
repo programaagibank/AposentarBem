@@ -21,6 +21,7 @@ public class ContribuicaoController {
         this.contribuicaoView = contribuicaoView;
     }
 
+
     public void processarContribuicoes(int idUsuario) {
         try {
             List<Double> salarios = new ArrayList<>();
