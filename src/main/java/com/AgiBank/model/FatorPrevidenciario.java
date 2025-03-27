@@ -1,7 +1,6 @@
 package com.AgiBank.model;
 
 import java.util.List;
-
 public class FatorPrevidenciario {
     private int anosContribuidos;
     private double EXPECTATIVA_DE_VIDA = 76.4;
