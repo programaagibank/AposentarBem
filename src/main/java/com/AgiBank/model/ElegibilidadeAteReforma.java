@@ -65,7 +65,6 @@ public class ElegibilidadeAteReforma extends RegrasAposentadoria {
             }
         }
     }
-
     public static boolean isAposentavelPorIdade(LocalDate dataNascimento, Genero genero, Profissao profissao, List<Contribuicao> contribuicoes, LocalDate dataLimite) {
         int totalMeses = calcularMesesTrabalhados(contribuicoes, dataLimite);
         int idadeEm2019 = calcularIdadeEm2019(dataNascimento);
